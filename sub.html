@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FREEHUB - Subject Selection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #F9564F; /* Matching chorcha's button color */
+            --secondary-color: #1a1a2e;
+            --accent-blue: #2563eb;
+            --accent-purple: #7c3aed;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --text-dark: #ffffff;
+            --text-light: #f3f4f6;
+            --text-gray: #9ca3af;
+            --bg-dark: #0f172a;
+            --bg-darker: #020617;
+            --card-bg: #1e293b;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            color: var(--text-light);
+            background-color: var(--bg-darker);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation Bar */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--secondary-color);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 25px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .hamburger .line {
+            width: 100%;
+            height: 3px;
+            background-color: var(--text-light);
+            transition: var(--transition);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100vh;
+            background-color: var(--secondary-color);
+            z-index: 1100;
+            transition: var(--transition);
+            overflow-y: auto;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-menu.active {
+            left: 0;
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .close-menu {
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .menu-list {
+            list-style: none;
+        }
+
+        .menu-item {
+            margin-bottom: 5px;
+        }
+
+        .menu-link {
+            display: block;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 15px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+
+        .menu-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .submenu {
+            list-style: none;
+            padding-left: 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .submenu.active {
+            max-height: 300px;
+        }
+
+        .submenu li {
+            margin-bottom: 5px;
+        }
+
+        .submenu a {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 400;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .submenu a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        /* Subject Selection System */
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .subject-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary-color);
+        }
+
+        .subject-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color); /* Matching chorcha's button color */
+        }
+
+        .subject-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .subject-desc {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        /* Chapter Selection Modal */
+        .chapter-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .chapter-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .chapter-container {
+            background-color: var(--bg-dark);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--primary-color);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            color: var(--text-gray);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--primary-color);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chapter-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .chapter-item {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chapter-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .chapter-link {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            display: block;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .subject-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .chapter-list {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .subject-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">FREE<span>HUB</span></a>
+                <div class="nav-actions">
+                    <div class="hamburger" id="hamburger">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="menu-header">
+            <div class="logo">FREE<span>HUB</span></div>
+            <div class="close-menu" id="closeMenu">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <ul class="menu-list">
+            <li class="menu-item">
+                <a href="index.html" class="menu-link" id="homeLink">
+                    <i class="fas fa-home"></i> হোম
+                </a>
+            </li>
+            <li class="menu-item">
+                <div class="menu-link has-submenu" id="classChangeLink">
+                    <i class="fas fa-exchange-alt"></i> ক্লাস পরিবর্তন <i class="fas fa-chevron-down"></i>
+                </div>
+                <ul class="submenu" id="classChangeSubmenu">
+                    <li><a href="nine-ten.html">Nine & Ten</a></li>
+                    <li><a href="ssc.html">SSC</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <h1 class="page-title">আপনার সাব্জেক্ট সিলেক্ট করুন</h1>
+            
+            <div class="subject-grid">
+                <!-- Subject 1 -->
+                <div class="subject-card" data-subject="physics">
+                    <div class="subject-icon">
+                        <i class="fas fa-atom"></i>
+                    </div>
+                    <h3 class="subject-name">পদার্থবিজ্ঞান</h3>
+                    <p class="subject-desc">এইচএসসি পদার্থবিজ্ঞান ১ম ও ২য় পত্র</p>
+                </div>
+                
+                <!-- Subject 2 -->
+                <div class="subject-card" data-subject="chemistry">
+                    <div class="subject-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3 class="subject-name">রসায়ন</h3>
+                    <p class="subject-desc">এইচএসসি রসায়ন ১ম ও ২য় পত্র</p>
+                </div>
+                
+                <!-- Subject 3 -->
+                <div class="subject-card" data-subject="biology">
+                    <div class="subject-icon">
+                        <i class="fas fa-dna"></i>
+                    </div>
+                    <h3 class="subject-name">জীববিজ্ঞান</h3>
+                    <p class="subject-desc">এইচএসসি জীববিজ্ঞান ১ম ও ২য় পত্র</p>
+                </div>
+                
+                <!-- Subject 4 -->
+                <div class="subject-card" data-subject="math">
+                    <div class="subject-icon">
+                        <i class="fas fa-square-root-alt"></i>
+                    </div>
+                    <h3 class="subject-name">গণিত</h3>
+                    <p class="subject-desc">এইচএসসি উচ্চতর গণিত</p>
+                </div>
+                
+                <!-- Subject 5 -->
+                <div class="subject-card" data-subject="bangla">
+                    <div class="subject-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3 class="subject-name">বাংলা</h3>
+                    <p class="subject-desc">এইচএসসি বাংলা ১ম ও ২য় পত্র</p>
+                </div>
+                
+                <!-- Subject 6 -->
+                <div class="subject-card" data-subject="english">
+                    <div class="subject-icon">
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <h3 class="subject-name">ইংরেজি</h3>
+                    <p class="subject-desc">এইচএসসি ইংরেজি ১ম ও ২য় পত্র</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Chapter Selection Modal -->
+    <div class="chapter-modal" id="chapterModal">
+        <div class="chapter-container">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h2 class="modal-title" id="modalTitle">সাবজেক্ট নাম</h2>
+            <div class="chapter-list" id="chapterList">
+                <!-- Chapters will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const hamburger = document.getElementById('hamburger');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const closeMenu = document.getElementById('closeMenu');
+            const overlay = document.getElementById('overlay');
+            const classChangeLink = document.getElementById('classChangeLink');
+            const classChangeSubmenu = document.getElementById('classChangeSubmenu');
+            const homeLink = document.getElementById('homeLink');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            // Subject data with chapters and links
+            const subjects = {
+                physics: {
+                    name: "পদার্থবিজ্ঞান",
+                    chapters: [
+                        { name: "ভৌতজগৎ ও পরিমাপ", link: "physics/chapter1.html" },
+                        { name: "ভেক্টর", link: "physics/chapter2.html" },
+                        { name: "গতিবিদ্যা", link: "physics/chapter3.html" },
+                        { name: "নিউটনের গতিসূত্র", link: "physics/chapter4.html" },
+                        { name: "কাজ, শক্তি ও ক্ষমতা", link: "physics/chapter5.html" },
+                        { name: "মহাকর্ষ ও অভিকর্ষ", link: "physics/chapter6.html" },
+                        { name: "স্থিতিস্থাপকতা", link: "physics/chapter7.html" },
+                        { name: "তরল ও গ্যাসের ধর্ম", link: "physics/chapter8.html" }
+                    ]
+                },
+                chemistry: {
+                    name: "রসায়ন",
+                    chapters: [
+                        { name: "রসায়নের ধারণা", link: "chemistry/chapter1.html" },
+                        { name: "পরমাণুর গঠন", link: "chemistry/chapter2.html" },
+                        { name: "পারমাণবিক মডেল", link: "chemistry/chapter3.html" },
+                        { name: "রাসায়নিক বন্ধন", link: "chemistry/chapter4.html" },
+                        { name: "মোল ধারণা", link: "chemistry/chapter5.html" },
+                        { name: "রাসায়নিক বিক্রিয়া", link: "chemistry/chapter6.html" },
+                        { name: "অম্ল, ক্ষারক ও লবণ", link: "chemistry/chapter7.html" },
+                        { name: "জারণ-বিজারণ", link: "chemistry/chapter8.html" }
+                    ]
+                },
+                biology: {
+                    name: "জীববিজ্ঞান",
+                    chapters: [
+                        { name: "জীবনের প্রবাহময়তা", link: "biology/chapter1.html" },
+                        { name: "কোষ ও এর গঠন", link: "biology/chapter2.html" },
+                        { name: "জীবকোষের রাসায়নিক সংগঠন", link: "biology/chapter3.html" },
+                        { name: "জীবকোষের বিপাক", link: "biology/chapter4.html" },
+                        { name: "বিভাজন", link: "biology/chapter5.html" },
+                        { name: "জিনতত্ত্ব", link: "biology/chapter6.html" },
+                        { name: "বিবর্তন", link: "biology/chapter7.html" },
+                        { name: "পরিবেশ ও জীববৈচিত্র্য", link: "biology/chapter8.html" }
+                    ]
+                },
+                math: {
+                    name: "গণিত",
+                    chapters: [
+                        { name: "সেট ও ফাংশন", link: "math/chapter1.html" },
+                        { name: "বীজগাণিতিক রাশি", link: "math/chapter2.html" },
+                        { name: "সূচক ও লগারিদম", link: "math/chapter3.html" },
+                        { name: "ত্রিকোণমিতি", link: "math/chapter4.html" },
+                        { name: "জ্যামিতি", link: "math/chapter5.html" },
+                        { name: "স্থানাঙ্ক জ্যামিতি", link: "math/chapter6.html" },
+                        { name: "ক্যালকুলাস", link: "math/chapter7.html" },
+                        { name: "সম্ভাব্যতা", link: "math/chapter8.html" }
+                    ]
+                },
+                bangla: {
+                    name: "বাংলা",
+                    chapters: [
+                        { name: "মধ্যযুগের বাংলা সাহিত্য", link: "bangla/chapter1.html" },
+                        { name: "আধুনিক যুগের বাংলা সাহিত্য", link: "bangla/chapter2.html" },
+                        { name: "ছোটগল্প", link: "bangla/chapter3.html" },
+                        { name: "উপন্যাস", link: "bangla/chapter4.html" },
+                        { name: "নাটক", link: "bangla/chapter5.html" },
+                        { name: "প্রবন্ধ", link: "bangla/chapter6.html" },
+                        { name: "কবিতা", link: "bangla/chapter7.html" },
+                        { name: "ব্যাকরণ", link: "bangla/chapter8.html" }
+                    ]
+                },
+                english: {
+                    name: "ইংরেজি",
+                    chapters: [
+                        { name: "Reading Comprehension", link: "english/chapter1.html" },
+                        { name: "Vocabulary", link: "english/chapter2.html" },
+                        { name: "Grammar", link: "english/chapter3.html" },
+                        { name: "Writing Skills", link: "english/chapter4.html" },
+                        { name: "Literature", link: "english/chapter5.html" },
+                        { name: "Poetry", link: "english/chapter6.html" },
+                        { name: "Drama", link: "english/chapter7.html" },
+                        { name: "Prose", link: "english/chapter8.html" }
+                    ]
+                }
+            };
+
+            // Mobile Menu Toggle
+            hamburger.addEventListener('click', function() {
+                mobileMenu.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+
+            closeMenu.addEventListener('click', function() {
+                mobileMenu.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+
+            overlay.addEventListener('click', function() {
+                mobileMenu.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+
+            // Class Change Submenu Toggle
+            classChangeLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                classChangeSubmenu.classList.toggle('active');
+                this.querySelector('.fa-chevron-down').classList.toggle('rotate');
+            });
+
+            // Loading Spinner for Links
+            function handleLinkClick(e) {
+            
+            
+    return true;
+
+                        }
+
+            // Attach loading handler to all links
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', handleLinkClick);
+            });
+
+            // Subject and Chapter Modal
+            const subjectCards = document.querySelectorAll('.subject-card');
+            const chapterModal = document.getElementById('chapterModal');
+            const closeModal = document.getElementById('closeModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const chapterList = document.getElementById('chapterList');
+
+            subjectCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const subjectId = this.getAttribute('data-subject');
+                    const subject = subjects[subjectId];
+                    
+                    modalTitle.textContent = subject.name;
+                    chapterList.innerHTML = '';
+                    
+                    subject.chapters.forEach(chapter => {
+                        const chapterItem = document.createElement('div');
+                        chapterItem.className = 'chapter-item';
+                        
+                        const chapterLink = document.createElement('a');
+                        chapterLink.className = 'chapter-link';
+                        chapterLink.href = chapter.link;
+                        chapterLink.textContent = chapter.name;
+                        
+                        chapterItem.appendChild(chapterLink);
+                        chapterList.appendChild(chapterItem);
+                    });
+                    
+                    chapterModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            closeModal.addEventListener('click', function() {
+                chapterModal.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+
+            chapterModal.addEventListener('click', function(e) {
+                if (e.target === chapterModal) {
+                    chapterModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
